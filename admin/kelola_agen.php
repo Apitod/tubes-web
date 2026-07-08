@@ -222,7 +222,6 @@ $daftar_agen = mysqli_query($koneksi, "
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // ===== Validasi Real-Time NIK =====
     const inputNik = document.getElementById('inputNik');
     const nikCounter = document.getElementById('nikCounter');
     const nikError = document.getElementById('nikError');

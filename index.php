@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Cek remember me cookie jika session expired
+// cookie
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user'])) {
     require 'koneksi.php';
     $uid = mysqli_real_escape_string($koneksi, $_COOKIE['remember_user']);
