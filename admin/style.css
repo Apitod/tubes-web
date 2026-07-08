@@ -65,6 +65,16 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+/* Sidebar desktop - force hide on mobile */
+@media (max-width: 991.98px) {
+    .sidebar-desktop,
+    #main-wrapper > aside {
+        display: none !important;
+        width: 0 !important;
+        min-width: 0 !important;
+    }
+}
+
 /* Responsive Fixes */
 @media (max-width: 991.98px) {
     /* Di mobile, konten utama mengisi penuh karena sidebar masuk ke offcanvas */
@@ -73,6 +83,41 @@ body {
     }
     .table-responsive {
         font-size: 0.85rem;
+    }
+    /* Header row: stack di mobile */
+    .page-header-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+    /* Sembunyikan kolom tabel tertentu di mobile */
+    .d-md-none {
+        display: none !important;
+    }
+    /* Card statistik: 2 kolom di tablet, 1 kolom di HP */
+    .row.g-4 > .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    /* Chart container */
+    .chart-container {
+        height: 220px !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Di HP kecil: 1 kolom card */
+    .row.g-4 > .col-md-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    /* Kurangi padding konten */
+    #main-wrapper > div.flex-grow-1 {
+        padding: 0.75rem !important;
+    }
+    /* Modal full-width di HP */
+    .modal-dialog {
+        margin: 0.5rem;
     }
 }
 
@@ -89,6 +134,31 @@ body {
 /* Navbar toggler tampil baik */
 .navbar-toggler:focus {
     box-shadow: none;
+}
+
+/* Mobile hamburger button — hanya di sudut kiri atas */
+@media (max-width: 991.98px) {
+    #mobile-nav {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 1050;
+    }
+    .btn-mobile-toggle {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px;
+        padding: 6px 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        line-height: 1;
+    }
+    .btn-mobile-toggle:focus {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    /* Tambahkan padding atas pada konten agar tidak tertutup tombol */
+    #main-wrapper > div.flex-grow-1 {
+        padding-top: 3.5rem !important;
+    }
 }
 
 /* Form validation feedback */
