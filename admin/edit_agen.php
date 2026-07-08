@@ -44,6 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($nama) || empty($username) || empty($nik)) {
         $pesan = ['type' => 'danger', 'text' => 'Nama, NIK, dan Username wajib diisi!'];
+    } elseif (!preg_match('/^[0-9]{16}$/', $nik)) {
+        $pesan = ['type' => 'danger', 'text' => 'NIK harus tepat 16 digit angka, tanpa huruf atau spasi!'];
+    } elseif (preg_match('/\s/', $username)) {
+        $pesan = ['type' => 'danger', 'text' => 'Username tidak boleh mengandung spasi!'];
+    } elseif (!empty($password_baru) && strlen($password_baru) < 6) {
+        $pesan = ['type' => 'danger', 'text' => 'Password baru minimal 6 karakter!'];
     } else {
         $username_aman = mysqli_real_escape_string($koneksi, $username);
         $cek = mysqli_fetch_assoc(mysqli_query(
@@ -160,7 +166,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </label>
                                     <input type="text" class="form-control rounded-3" id="nik" name="nik"
                                         value="<?php echo htmlspecialchars($agen['nik'] ?? ''); ?>"
-                                        maxlength="16" required>
+                                        maxlength="16"
+                                        inputmode="numeric"
+                                        pattern="[0-9]{16}"
+                                        autocomplete="off"
+                                        required>
+                                    <div class="d-flex justify-content-between">
+                                        <div class="invalid-feedback" id="nikError">NIK harus tepat 16 digit angka.</div>
+                                        <small class="char-counter ms-auto" id="nikCounter"><?php echo strlen($agen['nik'] ?? ''); ?> / 16</small>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -198,13 +212,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         Username <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control rounded-3" id="username" name="username"
-                                        value="<?php echo htmlspecialchars($agen['username']); ?>" required>
+                                        value="<?php echo htmlspecialchars($agen['username']); ?>" required autocomplete="off">
+                                    <div class="invalid-feedback" id="usernameError">Username tidak boleh mengandung spasi.</div>
                                 </div>
 
                                 <div class="mb-4">
                                     <label for="password_baru" class="form-label small fw-semibold">Password Baru</label>
                                     <input type="password" class="form-control rounded-3" id="password_baru" name="password_baru"
                                         placeholder="Kosongkan jika tidak ingin mengganti password">
+                                    <div class="invalid-feedback" id="passwordError">Password minimal 6 karakter.</div>
                                     <div class="form-text">
                                         Isi hanya jika ingin mengganti password agen ini.
                                     </div>
@@ -222,6 +238,100 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // ===== Validasi Real-Time NIK =====
+    const inputNik = document.getElementById('nik');
+    const nikCounter = document.getElementById('nikCounter');
+    const nikError = document.getElementById('nikError');
+
+    if (inputNik) {
+        inputNik.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key)) e.preventDefault();
+        });
+        inputNik.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            this.value = paste.replace(/\D/g, '').slice(0, 16);
+            updateNikUI();
+        });
+        inputNik.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
+            updateNikUI();
+        });
+        // Jalankan saat load untuk nilai yang sudah ada
+        updateNikUI();
+
+        function updateNikUI() {
+            const len = inputNik.value.length;
+            if (nikCounter) nikCounter.textContent = len + ' / 16';
+            if (len === 16) {
+                inputNik.classList.remove('is-invalid');
+                inputNik.classList.add('is-valid');
+                if (nikCounter) nikCounter.style.color = '#198754';
+            } else if (len > 0) {
+                inputNik.classList.remove('is-valid');
+                inputNik.classList.add('is-invalid');
+                if (nikError) nikError.textContent = 'NIK harus tepat 16 digit. Saat ini: ' + len + ' digit.';
+                if (nikCounter) nikCounter.style.color = '#dc3545';
+            } else {
+                inputNik.classList.remove('is-valid', 'is-invalid');
+            }
+        }
+    }
+
+    // ===== Validasi Username =====
+    const inputUsername = document.getElementById('username');
+    if (inputUsername) {
+        inputUsername.addEventListener('input', function() {
+            if (/\s/.test(this.value)) {
+                this.classList.add('is-invalid'); this.classList.remove('is-valid');
+            } else if (this.value.length > 0) {
+                this.classList.remove('is-invalid'); this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+        // Trigger saat load
+        if (inputUsername.value.length > 0 && !/\s/.test(inputUsername.value)) {
+            inputUsername.classList.add('is-valid');
+        }
+    }
+
+    // ===== Validasi Password Baru =====
+    const inputPassword = document.getElementById('password_baru');
+    const passwordError = document.getElementById('passwordError');
+    if (inputPassword) {
+        inputPassword.addEventListener('input', function() {
+            if (this.value.length > 0 && this.value.length < 6) {
+                this.classList.add('is-invalid'); this.classList.remove('is-valid');
+                if (passwordError) passwordError.textContent = 'Password minimal 6 karakter. Saat ini: ' + this.value.length + ' karakter.';
+            } else if (this.value.length >= 6) {
+                this.classList.remove('is-invalid'); this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+    }
+
+    // ===== Cegah submit jika ada error =====
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let valid = true;
+        if (inputNik && inputNik.value.length !== 16) {
+            inputNik.classList.add('is-invalid');
+            if (nikError) nikError.textContent = 'NIK harus tepat 16 digit angka!';
+            valid = false;
+        }
+        if (inputUsername && /\s/.test(inputUsername.value)) {
+            inputUsername.classList.add('is-invalid'); valid = false;
+        }
+        if (inputPassword && inputPassword.value.length > 0 && inputPassword.value.length < 6) {
+            inputPassword.classList.add('is-invalid');
+            if (passwordError) passwordError.textContent = 'Password minimal 6 karakter!';
+            valid = false;
+        }
+        if (!valid) e.preventDefault();
+    });
+    </script>
 </body>
 
 </html>

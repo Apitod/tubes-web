@@ -26,6 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
         $_SESSION['role'] = $user['role'];
 
+        // Set remember me cookie
+        if (!empty($_POST['remember_me'])) {
+            setcookie('remember_user', $user['id'], time() + (30 * 24 * 60 * 60), "/");
+        }
+
         if ($user['role'] == 'admin') { header("Location: admin/dashboard.php"); }
         elseif ($user['role'] == 'tl') { header("Location: tl/dashboard.php"); }
         else { header("Location: agen/dashboard.php"); }
@@ -68,6 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="mb-3">
                 <label class="form-label small fw-bold">Password</label>
                 <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me" value="1">
+                <label class="form-check-label small" for="remember_me">Ingat Saya</label>
             </div>
             <button type="submit" class="btn btn-primary w-100">Masuk</button>
         </form>

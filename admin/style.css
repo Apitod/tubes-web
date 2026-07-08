@@ -66,14 +66,52 @@ body {
 }
 
 /* Responsive Fixes */
-@media (max-width: 768px) {
-    #main-wrapper {
-        flex-direction: column;
+@media (max-width: 991.98px) {
+    /* Di mobile, konten utama mengisi penuh karena sidebar masuk ke offcanvas */
+    #main-wrapper > div.flex-grow-1 {
+        padding: 1rem !important;
     }
-    aside {
-        width: 100% !important;
-        min-height: auto !important;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+    .table-responsive {
+        font-size: 0.85rem;
     }
+}
+
+/* Offcanvas sidebar styling */
+.offcanvas-body .nav-link {
+    color: var(--text-muted) !important;
+}
+.offcanvas-body .nav-link.active,
+.offcanvas-body .nav-link.bg-primary {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+/* Navbar toggler tampil baik */
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* Form validation feedback */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--danger);
+}
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--success);
+}
+.invalid-feedback {
+    display: none;
+    font-size: 0.78rem;
+    color: var(--danger);
+}
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+.char-counter {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 2px;
 }
